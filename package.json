@@ -1,0 +1,22 @@
+{
+  "name": "Securities721",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "flatten": "sol-merger './contracts/*.sol' ./flat"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "openzeppelin-solidity": "1.9.0"
+  },
+  "devDependencies": {
+    "sol-merger": "^0.1.2"
+  }
+}
