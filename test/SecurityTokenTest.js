@@ -1,5 +1,34 @@
 const SecurityToken = artifacts.require("SecurityToken");
 
+var BigNumber = require('bignumber.js')
+
+const timeTravel = function (time) {
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.sendAsync({
+      jsonrpc: "2.0",
+      method: "evm_increaseTime",
+      params: [time], // 86400 is num seconds in day
+      id: new Date().getTime()
+    }, (err, result) => {
+      if(err){ return reject(err) }
+      return resolve(result)
+    });
+  })
+}
+
+const mineBlock = function () {
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.sendAsync({
+      jsonrpc: "2.0",
+      method: "evm_mine"
+    }, (err, result) => {
+      if(err){ return reject(err) }
+      return resolve(result)
+    });
+  })
+}
+
+
 function latestTime () {
     return web3.eth.getBlock('latest').timestamp;
   }
@@ -58,6 +87,13 @@ contract("SecurityToken", accounts => {
   });
 
   describe("transfer shares", () => {
+
+    before(async() => {
+          //Time travel 1 year
+          await timeTravel((3600 * 24 * 366))
+          await mineBlock() // workaround for https://github.com/ethereumjs/testrpc/issues/336
+        });
+
     it("it transfers the shares to another account", async () => {
       let shareholder = await instance.ownerOf(0);
 

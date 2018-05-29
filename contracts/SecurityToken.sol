@@ -6,7 +6,7 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 contract SecurityToken is ERC721Token, Ownable {
   bytes32 public jurisdiction = "US";
   bytes32 public regType = "Reg S";
-  uint256 public defaultHoldingPeriod = 0 days;
+  uint256 public defaultHoldingPeriod = 365 days;
   bool public comformsToRule144 = true;
 
   struct SharesData {
@@ -69,10 +69,15 @@ contract SecurityToken is ERC721Token, Ownable {
   }
 
   function safeTransferFrom(address _from, address _to, uint256 _tokenId) public {
+    // Check restrictions pertaining to the shareholders
     require(verifyTransferByShareholders(_from, _to), "Transfer is not valid - Whitelist");
+    // Check restrictions pertaining to the shares
     require(verifyTransferByShares(_from, _to, _tokenId), "Transfer is not valid - Shares");
 
+    // Keep total shares balances up to date across shareholders
     transferSharesBalance(_from, _to, shares[_tokenId].value);
+
+    // Modify the shares data if necessary
     modifySharesData(_from, _to, _tokenId);
 
     super.safeTransferFrom(_from, _to, _tokenId);
@@ -101,7 +106,7 @@ contract SecurityToken is ERC721Token, Ownable {
     uint8 _status
     )
     public onlyOwner {
-    //Passing a _time == 0 into this function, is equivalent to removing the _shareholder from the whitelist
+
     shareholders[_shareholder] = Shareholder(_sellLockupEnd, _buyLockupEnd, _jurisdiction, _isAffiliate, _status);
   }
 
